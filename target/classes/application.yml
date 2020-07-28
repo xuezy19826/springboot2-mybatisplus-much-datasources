@@ -1,0 +1,108 @@
+spring:
+  # 移除自动配置类
+  autoconfigure:
+    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure,org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  # Oracle 数据库
+  datasource:
+    druid:
+      # 开启缓存PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。
+      pool-prepared-statements: true
+      # 指定每个连接上PSCache的大小
+      max-pool-prepared-statement-per-connection-size: 100
+      filter:
+        #开启 StatFilter，统计监控信息
+        stat:
+          enabled: true
+          db-type: oracle
+          # 合并统计SQL
+          mergeSql: true
+          log-slow-sql: true
+          slow-sql-millis: 2000
+        #开启 WallFilter，防御SQL注入攻击
+        wall:
+          enabled: true
+          # 对被认为是攻击的SQL进行LOG.error输出
+          logViolation: true
+          # 对被认为是攻击的SQL抛出SQLException
+          throwException: true
+          config:
+            # 是否允许创建表
+            create-table-allow: false
+            # 是否允许执行Alter Table语句
+            alterTableAllow: false
+            # 是否允许修改表
+            dropTableAllow: false
+        #开启 Slf4jFilter，打印SQL日志
+        slf4j:
+          enabled: true
+      # WebStatFilter 监控过滤配置
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: /druid/*,*.js,*.gif,*.jpg,*.bmp,*.png,*.swf,*.css,*.ico,*.eot,*.svg,*.ttf,*.woff,*.woff2
+        # 关闭session统计
+        session-stat-enable: false
+      # StatViewServlet 监控页面配置
+      stat-view-servlet:
+        enabled: true
+        # 配置监控页面的首页是/druid/index.html
+        url-pattern: /druid/*
+        # 是否可以手动重置数据
+        #reset-enable: false
+        # 设置控制台管理用户
+        login-username: admin
+        login-password: admin
+    p6spy: false
+    dynamic:
+      datasource:
+        # ****************************** Oracle ******************************
+        # 主库
+#        master:
+#          username: xxx
+#          password: xxx
+#          url: jdbc:oracle:thin:@127.0.0.1:1521:cscadmin
+#          driver-class-name: oracle.jdbc.OracleDriver
+#        # 从库（存储登录和操作日志数据）
+#        slave:
+#          username: xxx
+#          password: xxx
+#          url: jdbc:oracle:thin:@127.0.0.1:1521:cscadmin
+#          driver-class-name: oracle.jdbc.OracleDriver
+        # ****************************** mysql ******************************
+        # MySQL数据库配置
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/springboot1?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+          username: root
+          password: root
+        slave:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/springboot1-2?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+          username: root
+          password: root
+
+# 日志输出 默认info类型  logback建议只使用四个级别 从高到低（ ERROR、WARN、INFO、DEBUG）
+logging:
+  level:
+    com:
+      example:
+        demo: DEBUG
+  path: ../logs
+
+#mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*Mapper.xml  #实体扫描，多个package用逗号或者分号分隔
+  type-aliases-package: com.example.po
+  global-config:
+    db-config:
+      id-type: AUTO  #主键类型  IdType.AUTO:"数据库ID自增", IdType.INPUT:"用户输入ID",ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+      #field-strategy: NOT_EMPTY #字段策略 IGNORED:"忽略判断",NOT_NULL:"非 NULL 判断",NOT_EMPTY:"非空判断"
+      capital-mode: true #数据库大写下划线转换
+      #逻辑删除配置（下面3个配置）
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
